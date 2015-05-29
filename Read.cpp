@@ -81,11 +81,11 @@ main(){
 
    //------------uNARY ENERGIES------------
    //Change limits
-   double w0,w1 = 1;
-   double wa,wb  =1;
+   double w0,w1,w2,w3,w4,w5 = 1; //Node weights
+   double wa,wb  = 1; //Edge weights
    
    for(size_t y = 0; y < ny; ++y) 
-   {
+   { //Restored this bucle, i think it's ned for the execution
    for(size_t x = 0; x < nx; ++x) {
       // function
       const size_t shape[] = {numberOfLabels}; //numberOFLabels = 6
@@ -95,25 +95,24 @@ main(){
       
       //i -> 0 to 880
       //j-> 0 - 6
-        f(0) = data[i][0] * w0;
-        f(1) = data[i][1] *w1;
-        f(2) =data[i][2] *w2 ;
-      	f(3)
-      	f(4)
-      	f(5)
+        f(0) = data[y][0] * w0;
+        f(1) = data[y][1] * w1;
+        f(2) = data[y][2] * w2 ;
+      	f(3) = data[y][3] * w3;
+      	f(4) = data[y][4] * w4;
+      	f(5) = data[y][5] * w5;
       
       
 
       }
 
       Model::FunctionIdentifier fid = gm.addFunction(f);
-      std::cout<<f(0)<<","<<f(1)<<"  ";
+     // std::cout<<f(0)<<","<<f(1)<<"  ";
       // factor
-      size_t variableIndices[] = {variableIndex(x)};
+      size_t variableIndices[] = {variableIndex(x,0)};
       gm.addFactor(fid, variableIndices, variableIndices + 1);
    }
    //std::cout<<std::endl;
-   }
 
 
    //---PAIRWISE ENERGY----------
@@ -132,7 +131,7 @@ main(){
    //Change limits
    for(size_t x = 0; x < nx; ++x) {
       if(x + 1 < nx) { // (x, y) -- (x + 1, y)
-         size_t variableIndices[] = {variableIndex(x), variableIndex(x + 1)};
+         size_t variableIndices[] = {variableIndex(x,0), variableIndex(x + 1,0)};
          sort(variableIndices, variableIndices + 2);
          gm.addFactor(fid, variableIndices, variableIndices + 2);
       }
