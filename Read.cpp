@@ -102,15 +102,16 @@ main(){
       	f(4) = data[y][4] * w4;
       	f(5) = data[y][5] * w5;
       
-      
-
-      }
-
-      Model::FunctionIdentifier fid = gm.addFunction(f);
+     
+       Model::FunctionIdentifier fid = gm.addFunction(f);
      // std::cout<<f(0)<<","<<f(1)<<"  ";
       // factor
       size_t variableIndices[] = {variableIndex(x,0)};
-      gm.addFactor(fid, variableIndices, variableIndices + 1);
+      gm.addFactor(fid, variableIndices, variableIndices + 1); 
+
+      }
+
+     
    }
    //std::cout<<std::endl;
 
