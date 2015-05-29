@@ -49,8 +49,8 @@ main(){
         {
             std::string val;
             std::getline(iss, val, ' ');
-            if ( !iss.good() )
-                break;
+            //if ( !iss.good() )
+             //   break;
 
             std::stringstream convertor(val);
             convertor >> data[row][col];
