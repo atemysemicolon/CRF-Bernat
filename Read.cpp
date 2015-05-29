@@ -79,44 +79,107 @@ main(){
 
 //My ExplicitFunction Put values into function?? factor*
 
+   //------------uNARY ENERGIES------------
+   //Change limits
+   double w0,w1 = 1;
+   double wa,wb  =1;
+   
    for(size_t y = 0; y < ny; ++y) 
    {
    for(size_t x = 0; x < nx; ++x) {
       // function
-      const size_t shape[] = {numberOfLabels};
+      const size_t shape[] = {numberOfLabels}; //numberOFLabels = 6
       ExplicitFunction<double> f(shape, shape + 1);
-      double rnd = (double)rand()/RAND_MAX;
-      bool rnd_flag = (rnd>0.);
+      
       //std::cout<<rnd<<","<<rnd_flag<<std::endl;
-      if(x<(nx/2))
-      {
-        f(0) = 0.9;
-        f(1) = 0.1;
-        if(rnd_flag)
-        {
-            f(0) = 0.1;
-            f(1) = 0.9;
-        }
-      }
-      if(x>=(nx/2))
-      {
-        f(1) = 0.9;
-        f(0) = 0.1;
-        if(rnd_flag)
-        {
-            f(1) = 0.1;
-            f(0) = 0.9;
-        }
+      
+      //i -> 0 to 880
+      //j-> 0 - 6
+        f(0) = data[i][0] * w0;
+        f(1) = data[i][1] *w1;
+        f(2) =data[i][2] *w2 ;
+      	f(3)
+      	f(4)
+      	f(5)
+      
+      
 
       }
 
       Model::FunctionIdentifier fid = gm.addFunction(f);
       std::cout<<f(0)<<","<<f(1)<<"  ";
       // factor
-      size_t variableIndices[] = {variableIndex(x, y)};
+      size_t variableIndices[] = {variableIndex(x)};
       gm.addFactor(fid, variableIndices, variableIndices + 1);
    }
    //std::cout<<std::endl;
    }
+
+
+   //---PAIRWISE ENERGY----------
+
+   //Defining Potts, and doing nothing yet with it
+   // add one (!) 2nd order Potts function
+   //0 energy when same, lambda energy when different.
+   PottsFunction<double> f(numberOfLabels, numberOfLabels, 0.0*wa, lambda*wb);
+   Model::FunctionIdentifier fid = gm.addFunction(f);
+
+   // for each pair of nodes (x1, y1), (x2, y2) which are adjacent on the grid,
+   // add one factor that connects the corresponding variable indices and 
+   // refers to the Potts function
+
+
+   //Change limits
+   for(size_t x = 0; x < nx; ++x) {
+      if(x + 1 < nx) { // (x, y) -- (x + 1, y)
+         size_t variableIndices[] = {variableIndex(x), variableIndex(x + 1)};
+         sort(variableIndices, variableIndices + 2);
+         gm.addFactor(fid, variableIndices, variableIndices + 2);
+      }
+      
+   }   
+
+
+
+   //Once model is defined
+   //-----INFERENCE---------
+   typedef BeliefPropagationUpdateRules<Model, opengm::Minimizer> UpdateRules;
+   typedef MessagePassing<Model, opengm::Minimizer, UpdateRules, opengm::MaxDistance> BeliefPropagation;
+   const size_t maxNumberOfIterations = 40;
+   const double convergenceBound = 1e-7;
+   const double damping = 0.5;
+   BeliefPropagation::Parameter parameter(maxNumberOfIterations, convergenceBound, damping);
+   //End of defining inference method
+
+   //Telling inference method to connect to this graphical model
+   BeliefPropagation bp(gm, parameter);
+   
+   // optimize (approximately)
+   BeliefPropagation::VerboseVisitorType visitor;
+   bp.infer(visitor); //Actual Optimization
+
+
+   // obtain the (approximate) argmin
+   vector<size_t> labeling(nx * ny);
+   bp.arg(labeling); //gives you best labelling : or result of inference.
+
+   /* Labelling = for example
+   *
+   * 1 --- 2 ---1 --- 3--- 1 ..... so on
+   */
+   
+   // output the (approximate) argmin
+   size_t variableIndex = 0;
+   for(size_t y = 0; y < ny; ++y) {
+      for(size_t x = 0; x < nx; ++x) {
+         cout << labeling[variableIndex] << ' ';
+         ++variableIndex;
+      }   
+      cout << endl;
+   }
+
+
+
+
 
 }
