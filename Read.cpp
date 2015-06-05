@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include <iterator>
 #include <opengm/graphicalmodel/graphicalmodel.hxx>
 #include <opengm/graphicalmodel/space/simplediscretespace.hxx>
 #include <opengm/functions/potts.hxx>
@@ -30,32 +32,56 @@ inline size_t variableIndex(const size_t x, const size_t y) {
    return x + nx * y; 
 }
 
+std::vector<std::string> readFile(std::string &filename)
+{
+    std::string line;
+    std::vector<std::string> lines;
+    ifstream fin;
+    fin.open(filename);
+
+    if(fin.is_open())
+    {
+        while(std::getline(fin,line))
+        {
+            lines.push_back(line);
+
+        }
+    }
+
+    return lines;
+}
+
+
+std::vector<float> parseLine(std::string &line)
+{
+    std::istringstream iss(line);
+    std::vector<float> v;
+    std::copy(std::istream_iterator<float>(iss),
+              std::istream_iterator<float>(),
+              std::back_inserter(v));
+
+    return v;
+}
+
+std::vector<std::vector<float>> parseStringFile(std::vector<std::string> &lines)
+{
+    std::vector<std::vector<float>> vals;
+    for(int i=0;i<lines.size();i++)
+        vals.push_back(parseLine(lines[i]));
+
+
+    return vals;
+}
+
 
 main(){
     //readFile();
-    float data[880][6];
-    std::ifstream file("/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt");
+    //float data[880][6];
+    std::string filename = "/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt"
+    std::vector<std::string> lines = readFile(filename);
+    std::vector<std::vector<float>> data = parseStringFile(lines);
 
-    for(int row = 0; row < 880; ++row) //Saving the data input into a array data.
-    {
-        std::string line;
-        std::getline(file, line);
-        if ( !file.good() )
-            break;
-
-        std::stringstream iss(line);
-
-        for (int col = 0; col < 6; ++col)
-        {
-            std::string val;
-            std::getline(iss, val, ' ');
-            //if ( !iss.good() )
-             //   break;
-
-            std::stringstream convertor(val);
-            convertor >> data[row][col];
-        }
-    } //Printing the data
+    
     for (int i =0; i < 880; i++) {
 
         for (int j = 0; j<6 ;j++) {
