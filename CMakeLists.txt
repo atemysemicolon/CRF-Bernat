@@ -1,14 +1,9 @@
-#add_executable(example-grid-potts grid_potts.cxx ${headers})
-#add_executable(example-recognition recognition.cxx ${headers})
-#add_executable(example-segmentation interpixel_boundary_segmentation.cxx ${headers})
-add_executable(example-Read Read.cpp ${headers})
+cmake_minimum_required(VERSION 3.2)
+project(CRF_Bernat)
 
-if(WIN32 OR APPLE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-else()
-  find_library(RT_LIBRARY rt)
-  #target_link_libraries(example-grid-potts rt)
-  #target_link_libraries(example-recognition rt)
-  target_link_libraries(example-Read rt)
-endif()
+set(SOURCE_FILES
+    Read.cpp)
 
+add_executable(CRF_Bernat ${SOURCE_FILES})

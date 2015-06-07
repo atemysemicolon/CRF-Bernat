@@ -15,7 +15,7 @@
 #include <opengm/inference/gibbs.hxx>
 
 // Define filename etc
-#define filename "/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt"
+//#define filename "/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt"
 #define rows 880
 #define cols 6
 using namespace std; // 'using' is used only in example code
@@ -77,7 +77,7 @@ std::vector<std::vector<float>> parseStringFile(std::vector<std::string> &lines)
 main(){
     //readFile();
     //float data[880][6];
-    std::string filename = "/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt"
+    std::string filename = "/home/prassanna/Development/Datasets/CamVid/FEATS/0001TP_006690.boosted.txt";
     std::vector<std::string> lines = readFile(filename);
     std::vector<std::vector<float>> data = parseStringFile(lines);
 
