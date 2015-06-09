@@ -116,14 +116,14 @@ main(){
     std::vector<std::string> files = readFolder(folder_name,".boosted.txt");
 
     for(int i =0;i<files.size();i++) {
-        std::cout<<files[i]<<std::endl;
+        //std::cout<<files[i]<<std::endl;
     }
 
-    int file_nr=0;
+    int file_nr=1;
     //for (file_nr = 0;file_nr<files_to_train;file_nr++)
 
 
-    filename = folder_name + files[file_nr];
+    std::string filename = folder_name + files[file_nr];
 
     std::vector<std::string> lines = readFile(filename);
     std::vector<std::vector<float>> data = parseStringFile(lines);
@@ -131,10 +131,10 @@ main(){
 
         for (int j = 0; j<6 ;j++) {
 
-       // std::cout <<" "<< data[i][j];
+        std::cout <<" "<< data[i][j];
        // return 0;
         }
-       // std::cout<<std::endl;
+        std::cout<<std::endl;
     }
 
 
@@ -146,7 +146,7 @@ main(){
    // - support for Potts functions (template parameter PottsFunction<double>)
    typedef GraphicalModel<double, Adder, OPENGM_TYPELIST_2(ExplicitFunction<double> , PottsFunction<double> ) , Space> Model;
    Model gm(space);
-    /*
+
    // for each node (x, y) in the grid, i.e. for each variable 
    // variableIndex(x, y) of the model, add one 1st order functions 
    // and one 1st order factor
@@ -181,7 +181,8 @@ main(){
        Model::FunctionIdentifier fid = gm.addFunction(f);
      // std::cout<<f(0)<<","<<f(1)<<"  ";
       // factor
-      size_t variableIndices[] = {variableIndex(x,0)};
+       //---------------------------MODIFIED------------------------------------
+      size_t variableIndices[] = {variableIndex(y,0)}; //changed variableIndex(x,0) to variableIndex(y,0)
       gm.addFactor(fid, variableIndices, variableIndices + 1); 
 
       }
@@ -203,9 +204,9 @@ main(){
    // add one factor that connects the corresponding variable indices and 
    // refers to the Potts function
 
-
+//----------------------------MODIFIED--------------------------------
    //Change limits
-   for(size_t x = 0; x < nx; ++x) {
+   for(size_t x = 0; x < nx; ++x) { //Should this iterate through Y? if done, seems to do 880 steps, and also get even more 5 classification
       if(x + 1 < nx) { // (x, y) -- (x + 1, y)
          size_t variableIndices[] = {variableIndex(x,0), variableIndex(x + 1,0)};
          sort(variableIndices, variableIndices + 2);
@@ -241,8 +242,8 @@ main(){
    /* Labelling = for example
    *
    * 1 --- 2 ---1 --- 3--- 1 ..... so on
+
    */
-   /*
    // output the (approximate) argmin
    size_t variableIndex = 0;
    for(size_t y = 0; y < ny; ++y) {
@@ -250,10 +251,10 @@ main(){
          cout << labeling[variableIndex] << ' ';
          ++variableIndex;
       }   
-      cout << endl;
+     // cout << endl;
    }
 
-*/
+
 
 
 
