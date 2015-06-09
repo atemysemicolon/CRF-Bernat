@@ -14,6 +14,7 @@
 #include <opengm/inference/messagepassing/messagepassing.hxx>
 #include <opengm/inference/gibbs.hxx>
 #include "settings.h"
+#include <dirent.h>
 
 // Define filename etc
 //#define filename "/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt"
@@ -53,6 +54,44 @@ std::vector<std::string> readFile(std::string filename)
 }
 
 
+bool checkExtension(std::string &file_name, std::string extension)
+{
+    unsigned location_of_last_dot = file_name.rfind(".");
+    if(location_of_last_dot!=std::string::npos)
+    {
+        string ext = file_name.substr(location_of_last_dot);
+        if(ext.compare(extension) == 0)
+            return true;
+        else
+            return false;
+    }
+
+    return false;
+}
+
+void readFolder(std::string folder_name,std::string extension)
+{
+    DIR *directory;
+    struct dirent *directory_entry;
+    directory = opendir(folder_name.c_str());
+
+    if(directory!=NULL)
+    {
+        while( (directory_entry = readdir (directory))!=NULL)
+        {
+            string file_name = directory_entry->d_name;
+
+            if(checkExtension(file_name, extension))
+                std::cout<<(directory_entry->d_name)<<std::endl;
+        }
+
+    }
+
+
+
+}
+
+
 std::vector<float> parseLine(std::string &line)
 {
     std::istringstream iss(line);
@@ -83,15 +122,17 @@ main(){
     std::vector<std::string> lines = readFile(filename);
     std::vector<std::vector<float>> data = parseStringFile(lines);
 
+
+    readFolder(folder_name,".txt");
     
     for (int i =0; i < 880; i++) {
 
         for (int j = 0; j<6 ;j++) {
 
-        std::cout <<" "<< data[i][j];
+       // std::cout <<" "<< data[i][j];
        // return 0;
         }
-        std::cout<<std::endl;
+       // std::cout<<std::endl;
     }
 
 
