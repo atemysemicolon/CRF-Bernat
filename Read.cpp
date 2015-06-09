@@ -13,6 +13,7 @@
 #include <opengm/operations/adder.hxx>
 #include <opengm/inference/messagepassing/messagepassing.hxx>
 #include <opengm/inference/gibbs.hxx>
+#include "settings.h"
 
 // Define filename etc
 //#define filename "/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt"
@@ -32,7 +33,7 @@ inline size_t variableIndex(const size_t x, const size_t y) {
    return x + nx * y; 
 }
 
-std::vector<std::string> readFile(std::string &filename)
+std::vector<std::string> readFile(std::string filename)
 {
     std::string line;
     std::vector<std::string> lines;
@@ -77,7 +78,8 @@ std::vector<std::vector<float>> parseStringFile(std::vector<std::string> &lines)
 main(){
     //readFile();
     //float data[880][6];
-    std::string filename = "/home/prassanna/Development/Datasets/CamVid/FEATS/0001TP_006690.boosted.txt";
+
+
     std::vector<std::string> lines = readFile(filename);
     std::vector<std::vector<float>> data = parseStringFile(lines);
 
@@ -89,7 +91,10 @@ main(){
         std::cout <<" "<< data[i][j];
        // return 0;
         }
+        std::cout<<std::endl;
     }
+
+
    typedef SimpleDiscreteSpace<size_t, size_t> Space; //We generate the DiscreteSpace [880]
    Space space(nx * ny, numberOfLabels);//([880],6)
 
@@ -98,6 +103,7 @@ main(){
    // - support for Potts functions (template parameter PottsFunction<double>)
    typedef GraphicalModel<double, Adder, OPENGM_TYPELIST_2(ExplicitFunction<double> , PottsFunction<double> ) , Space> Model;
    Model gm(space);
+    /*
    // for each node (x, y) in the grid, i.e. for each variable 
    // variableIndex(x, y) of the model, add one 1st order functions 
    // and one 1st order factor
@@ -193,7 +199,7 @@ main(){
    *
    * 1 --- 2 ---1 --- 3--- 1 ..... so on
    */
-   
+   /*
    // output the (approximate) argmin
    size_t variableIndex = 0;
    for(size_t y = 0; y < ny; ++y) {
@@ -204,7 +210,7 @@ main(){
       cout << endl;
    }
 
-
+*/
 
 
 
