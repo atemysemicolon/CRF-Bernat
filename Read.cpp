@@ -56,21 +56,12 @@ std::vector<std::string> readFile(std::string filename)
 
 bool checkExtension(std::string &file_name, std::string extension)
 {
-    unsigned location_of_last_dot = file_name.rfind(".");
-    if(location_of_last_dot!=std::string::npos)
-    {
-        string ext = file_name.substr(location_of_last_dot);
-        if(ext.compare(extension) == 0)
-            return true;
-        else
-            return false;
-    }
-
-    return false;
+    return (file_name.rfind(extension)!=std::string::npos);
 }
 
-void readFolder(std::string folder_name,std::string extension)
+std::vector<std::string> readFolder(std::string folder_name,std::string extension)
 {
+    std::vector<std::string> filenames;
     DIR *directory;
     struct dirent *directory_entry;
     directory = opendir(folder_name.c_str());
@@ -82,10 +73,11 @@ void readFolder(std::string folder_name,std::string extension)
             string file_name = directory_entry->d_name;
 
             if(checkExtension(file_name, extension))
-                std::cout<<(directory_entry->d_name)<<std::endl;
+                filenames.push_back(directory_entry->d_name);
         }
 
     }
+    return filenames;
 
 
 
@@ -119,12 +111,22 @@ main(){
     //float data[880][6];
 
 
+
+
+    std::vector<std::string> files = readFolder(folder_name,".boosted.txt");
+
+    for(int i =0;i<files.size();i++) {
+        std::cout<<files[i]<<std::endl;
+    }
+
+    int file_nr=0;
+    //for (file_nr = 0;file_nr<files_to_train;file_nr++)
+
+
+    filename = folder_name + files[file_nr];
+
     std::vector<std::string> lines = readFile(filename);
     std::vector<std::vector<float>> data = parseStringFile(lines);
-
-
-    readFolder(folder_name,".txt");
-    
     for (int i =0; i < 880; i++) {
 
         for (int j = 0; j<6 ;j++) {
