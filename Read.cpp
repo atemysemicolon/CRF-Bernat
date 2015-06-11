@@ -20,6 +20,8 @@
 //#define filename "/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt"
 #define rows 880
 #define cols 6
+#define rowsSeg 720
+#define colsSeg 960
 using namespace std; // 'using' is used only in example code
 using namespace opengm;
 
@@ -39,10 +41,11 @@ std::vector<std::string> readFile(std::string filename)
     std::string line;
     std::vector<std::string> lines;
     ifstream fin;
+	//std::cout << "filename"<< filename<<std::endl;
     fin.open(filename);
-
     if(fin.is_open())
     {
+    	//std::cout << "obert";
         while(std::getline(fin,line))
         {
             lines.push_back(line);
@@ -52,7 +55,9 @@ std::vector<std::string> readFile(std::string filename)
 
     return lines;
 }
-
+bool withinRange( int x, int y ) {
+    return x >= 0 && y >= 0 && x < colsSeg && y < rowsSeg;
+}
 
 bool checkExtension(std::string &file_name, std::string extension)
 {
@@ -110,15 +115,91 @@ main(){
     //readFile();
     //float data[880][6];
 
+    //----------------------Reading DATA SEGS---------------------------------
+    std::vector<std::string> filesSeg = readFolder(folder_name2,".seg");
+    //std::cout<<"Numberfiles"<<filesSeg.size();
+    //std::cout<<std::endl;
+    int file_seg=1;
+
+       for(int i =0;i<filesSeg.size();i++) {
+           //std::cout<<filesSeg[i]<<std::endl;
+       }
+    std::string filenameseg = folder_name + filesSeg[file_seg];
+    //std::cout<<"name of the first file"<<filesSeg[file_seg]<<std::endl;
+    //std::vector<std::string> linesseg = readFile(filenameseg); Not working because of the .seg format.
+    std::string filenametest = "/home/bernat/Desktop/Projecte/0001TP_006720.txt";
+    std::vector<std::string> linesseg = readFile(filenametest);
+    //std::cout << "lineseg"<< linesseg;
+    std::vector<std::vector<float> > dataseg = parseStringFile(linesseg);
+    std::cout << "rows"<< dataseg.size()<<std::endl; //720
+    std::cout << "cols"<< dataseg[1].size()<<std::endl; //960
+     //for (int i =0; i < dataseg.size(); i++) {
+
+
+    //------------------------Extracting conections/contourns----------
+    const int dx[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
+    const int dy[8] = { 0, -1, -1, -1, 0, 1, 1, 1 };
+    int pos,obj;
+    bool should_push;
+    struct difference
+    {
+      int origin;
+      int objective;
+    };
+    vector <difference> diff;
+    diff.push_back(difference());
+    int ant = 0;
+    vector<vector<bool> > taken;
+    should_push=false;
+    for ( int y = 0; y <rowsSeg; y++ ){
+        for (int x = 0; x < colsSeg; x++){
+        		//std::cout<<dataseg[y][x];
+
+            for (int k = 0; k<8; k++){
+                    int nx = x + dx[k];
+                    int ny = y + dy[k];
+                    //ant = ant +1;
+                    if (nx >= 0 && ny >= 0 && nx < colsSeg && ny < rowsSeg){
+                    	if (dataseg[y][x]!= dataseg[ny][nx]) {
+                    		pos = dataseg[y][x];
+                    		obj = dataseg[ny][nx];
+                    		//should_push = true;
+                    		diff.push_back ({pos, obj});
+                    	}
+                    	/*if (should_push){
+                    		if (diff.size() == 1){
+                    			diff[0].origin=pos;
+                    			diff[0].objective= obj;
+                    		}else{
+                    			diff.push_back ({pos, obj});
+                    		}
+                    	}*/
+
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i<15;i++){
+        	std::cout<<"origen"<<diff[i].origin;
+        	std::cout<<"obj"<<diff[i].objective<<std::endl;
+        }
+
+     std::cout<<diff.size();
 
 
 
+
+
+
+
+	//--------------READING DATA Boosted -------------------------------
     std::vector<std::string> files = readFolder(folder_name,".boosted.txt");
 
     for(int i =0;i<files.size();i++) {
         //std::cout<<files[i]<<std::endl;
     }
-
+	//std::cout << "arriba";
     int file_nr=1;
     //for (file_nr = 0;file_nr<files_to_train;file_nr++)
 
@@ -131,11 +212,12 @@ main(){
 
         for (int j = 0; j<6 ;j++) {
 
-        std::cout <<" "<< data[i][j];
+        //std::cout <<" "<< data[i][j];
        // return 0;
         }
-        std::cout<<std::endl;
+        //std::cout<<std::endl;
     }
+
 
 
    typedef SimpleDiscreteSpace<size_t, size_t> Space; //We generate the DiscreteSpace [880]
@@ -248,7 +330,7 @@ main(){
    size_t variableIndex = 0;
    for(size_t y = 0; y < ny; ++y) {
       for(size_t x = 0; x < nx; ++x) {
-         cout << labeling[variableIndex] << ' ';
+         //cout << labeling[variableIndex] << ' ';
          ++variableIndex;
       }   
      // cout << endl;
