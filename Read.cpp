@@ -4,6 +4,7 @@
 #include <malloc.h>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include <sstream>
 #include <vector>
 #include <iterator>
@@ -30,12 +31,36 @@ const size_t nx = 1; // width of the grid
 const size_t ny = 880; // height of the grid
 const size_t numberOfLabels = 6;
 double lambda = 0.1; // coupling strength of the Potts model
+struct difference
+{
+	int origin;
+	int objective;
+};
 
 // this function maps a node (x, y) in the grid to a unique variable index
 inline size_t variableIndex(const size_t x, const size_t y) { 
    return x + nx * y; 
 }
+//Function that sorts vector to let me delete repeted values
+bool sortByNumber(const difference &lhs, const difference &rhs) { 
 
+
+	if(lhs.origin==rhs.origin && lhs.objective == rhs.objective){
+		return true;
+
+	}else{
+		return false;
+	}
+
+}
+bool sortByNumber2(const difference &lhs, const difference &rhs) { 
+
+
+return(lhs.origin<rhs.origin);
+
+}
+
+//bool sortByNumber2(const difference &lhs, const difference &rhs) { return lhs.objective< rhs.objective;}
 std::vector<std::string> readFile(std::string filename)
 {
     std::string line;
@@ -54,9 +79,6 @@ std::vector<std::string> readFile(std::string filename)
     }
 
     return lines;
-}
-bool withinRange( int x, int y ) {
-    return x >= 0 && y >= 0 && x < colsSeg && y < rowsSeg;
 }
 
 bool checkExtension(std::string &file_name, std::string extension)
@@ -141,12 +163,8 @@ main(){
     const int dy[8] = { 0, -1, -1, -1, 0, 1, 1, 1 };
     int pos,obj;
     bool should_push;
-    struct difference
-    {
-      int origin;
-      int objective;
-    };
     vector <difference> diff;
+    vector <difference> Vedge;
     diff.push_back(difference());
     int ant = 0;
     vector<vector<bool> > taken;
@@ -180,18 +198,20 @@ main(){
             }
         }
 
-        for (int i = 0; i<15;i++){
+	//sort(diff.begin(),diff.end(),sortByNumber);
+	sort(diff.begin(),diff.end(),sortByNumber);
+
+	auto comp = [](const difference& lhs, const difference& rhs ){return lhs.origin == rhs.origin && lhs.objective == rhs.objective ;};
+	auto last = std::unique(diff.begin(), diff.end(),comp);
+	diff.erase(last,diff.end());
+	std::cout<<diff.size();
+	//sort(diff.begin(),diff.end(),sortByNumber2);
+	//diff.erase(last,diff.end());
+	sort(diff.begin(),diff.end(),sortByNumber2);
+    for (int i = 0; i<15;i++){
         	std::cout<<"origen"<<diff[i].origin;
         	std::cout<<"obj"<<diff[i].objective<<std::endl;
-        }
-
-     std::cout<<diff.size();
-
-
-
-
-
-
+    }
 
 	//--------------READING DATA Boosted -------------------------------
     std::vector<std::string> files = readFolder(folder_name,".boosted.txt");
