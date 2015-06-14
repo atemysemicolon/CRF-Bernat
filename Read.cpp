@@ -17,8 +17,7 @@
 #include "settings.h"
 #include <dirent.h>
 
-// Define filename etc
-//#define filename "/home/bernat/Desktop/Projecte/FEATS/0001TP_006690.boosted.txt"
+
 #define rows 880
 #define cols 6
 #define rowsSeg 720
@@ -31,7 +30,8 @@ const size_t nx = 1; // width of the grid
 const size_t ny = 880; // height of the grid
 const size_t numberOfLabels = 6;
 double lambda = 0.1; // coupling strength of the Potts model
-struct difference
+
+struct difference //Struct used to save data from edge conections
 {
 	int origin;
 	int objective;
@@ -45,23 +45,28 @@ inline size_t variableIndex(const size_t x, const size_t y) {
 bool sortByNumber(const difference &lhs, const difference &rhs) { 
 
 
-	if(lhs.origin==rhs.origin && lhs.objective == rhs.objective){
+	if(lhs.origin<rhs.origin){
+
 		return true;
 
+	}else if (lhs.origin ==rhs.origin && lhs.objective<rhs.objective){
+		
+		return true;
 	}else{
 		return false;
 	}
 
 }
-bool sortByNumber2(const difference &lhs, const difference &rhs) { 
 
+bool iseq(const difference &lhs, const difference &rhs) {  
 
-return(lhs.origin<rhs.origin);
+	if (lhs.origin ==rhs.origin && lhs.objective==rhs.objective){
+		return true;
+	}else return false;
 
 }
 
-//bool sortByNumber2(const difference &lhs, const difference &rhs) { return lhs.objective< rhs.objective;}
-std::vector<std::string> readFile(std::string filename)
+std::vector<std::string> readFile(std::string filename) //Read file function
 {
     std::string line;
     std::vector<std::string> lines;
@@ -86,7 +91,7 @@ bool checkExtension(std::string &file_name, std::string extension)
     return (file_name.rfind(extension)!=std::string::npos);
 }
 
-std::vector<std::string> readFolder(std::string folder_name,std::string extension)
+std::vector<std::string> readFolder(std::string folder_name,std::string extension) //Read folder function
 {
     std::vector<std::string> filenames;
     DIR *directory;
@@ -134,90 +139,84 @@ std::vector<std::vector<float>> parseStringFile(std::vector<std::string> &lines)
 
 
 main(){
-    //readFile();
-    //float data[880][6];
 
     //----------------------Reading DATA SEGS---------------------------------
     std::vector<std::string> filesSeg = readFolder(folder_name2,".seg");
-    //std::cout<<"Numberfiles"<<filesSeg.size();
-    //std::cout<<std::endl;
     int file_seg=1;
 
        for(int i =0;i<filesSeg.size();i++) {
            //std::cout<<filesSeg[i]<<std::endl;
        }
     std::string filenameseg = folder_name + filesSeg[file_seg];
-    //std::cout<<"name of the first file"<<filesSeg[file_seg]<<std::endl;
-    //std::vector<std::string> linesseg = readFile(filenameseg); Not working because of the .seg format.
-    std::string filenametest = "/home/bernat/Desktop/Projecte/0001TP_006720.txt";
+    std::string filenametest = "/home/bernat/Desktop/Projecte/0001TP_006720.txt"; //First example used 
     std::vector<std::string> linesseg = readFile(filenametest);
-    //std::cout << "lineseg"<< linesseg;
     std::vector<std::vector<float> > dataseg = parseStringFile(linesseg);
-    std::cout << "rows"<< dataseg.size()<<std::endl; //720
-    std::cout << "cols"<< dataseg[1].size()<<std::endl; //960
-     //for (int i =0; i < dataseg.size(); i++) {
+
 
 
     //------------------------Extracting conections/contourns----------
     const int dx[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
     const int dy[8] = { 0, -1, -1, -1, 0, 1, 1, 1 };
     int pos,obj;
-    bool should_push;
+    bool should_push,trobat;
     vector <difference> diff;
-    vector <difference> Vedge;
     diff.push_back(difference());
-    int ant = 0;
-    vector<vector<bool> > taken;
-    should_push=false;
+
     for ( int y = 0; y <rowsSeg; y++ ){
         for (int x = 0; x < colsSeg; x++){
         		//std::cout<<dataseg[y][x];
 
-            for (int k = 0; k<8; k++){
+            for (int k = 0; k<8; k++){ //Checking all the conections arround the contourns 
                     int nx = x + dx[k];
                     int ny = y + dy[k];
                     //ant = ant +1;
-                    if (nx >= 0 && ny >= 0 && nx < colsSeg && ny < rowsSeg){
-                    	if (dataseg[y][x]!= dataseg[ny][nx]) {
+                    if (nx >= 0 && ny >= 0 && nx < colsSeg && ny < rowsSeg){ //Not out from the grid
+                    	if (dataseg[y][x]!= dataseg[ny][nx]) { //if they aren't equal means there's a conection
                     		pos = dataseg[y][x];
                     		obj = dataseg[ny][nx];
-                    		//should_push = true;
-                    		diff.push_back ({pos, obj});
+                    		diff.push_back ({pos, obj}); //saving it into diff vector 
                     	}
-                    	/*if (should_push){
-                    		if (diff.size() == 1){
-                    			diff[0].origin=pos;
-                    			diff[0].objective= obj;
-                    		}else{
-                    			diff.push_back ({pos, obj});
-                    		}
-                    	}*/
-
                     }
                 }
             }
         }
+//-------------------DELETE ALL REAPETED VALUES-------------------------------
 
-	//sort(diff.begin(),diff.end(),sortByNumber);
-	sort(diff.begin(),diff.end(),sortByNumber);
+	sort(diff.begin(),diff.end(),sortByNumber); //We first sort, priorizing the  first value
 
 	auto comp = [](const difference& lhs, const difference& rhs ){return lhs.origin == rhs.origin && lhs.objective == rhs.objective ;};
 	auto last = std::unique(diff.begin(), diff.end(),comp);
-	diff.erase(last,diff.end());
-	std::cout<<diff.size();
-	//sort(diff.begin(),diff.end(),sortByNumber2);
-	//diff.erase(last,diff.end());
-	sort(diff.begin(),diff.end(),sortByNumber2);
-    for (int i = 0; i<15;i++){
-        	std::cout<<"origen"<<diff[i].origin;
+	diff.erase(last,diff.end()); //We arase the repeted values [1,0]-[1.0]
+	int k = 0;
+	int newObj;
+	int newOri;
+	while (k<diff.size()){ //We delete the swaped equal values [0-1][1-0]
+		newOri = diff[k].objective;
+		newObj = diff[k].origin;
+		auto it= std::remove_if(diff.begin(),diff.end(),[newOri,newObj](const difference diff){
+			if (diff.origin==newOri && diff.objective==newObj){
+				return true;
+			}else return false;
+		});
+		diff.erase(it,diff.end());
+		++k;
+	}
+	/*
+		
+	std::cout<<"tamany"<<diff.size();
+    for (int i =0; i < 300; i++) {
+
+			std::cout<<"origen"<<diff[i].origin;
         	std::cout<<"obj"<<diff[i].objective<<std::endl;
-    }
+    	
+    } *///if we want to check the vector <---
 
 	//--------------READING DATA Boosted -------------------------------
     std::vector<std::string> files = readFolder(folder_name,".boosted.txt");
 
     for(int i =0;i<files.size();i++) {
         //std::cout<<files[i]<<std::endl;
+
     }
 	//std::cout << "arriba";
     int file_nr=1;
@@ -228,15 +227,6 @@ main(){
 
     std::vector<std::string> lines = readFile(filename);
     std::vector<std::vector<float>> data = parseStringFile(lines);
-    for (int i =0; i < 880; i++) {
-
-        for (int j = 0; j<6 ;j++) {
-
-        //std::cout <<" "<< data[i][j];
-       // return 0;
-        }
-        //std::cout<<std::endl;
-    }
 
 
 
@@ -308,14 +298,11 @@ main(){
 
 //----------------------------MODIFIED--------------------------------
    //Change limits
-   for(size_t x = 0; x < nx; ++x) { //Should this iterate through Y? if done, seems to do 880 steps, and also get even more 5 classification
-      if(x + 1 < nx) { // (x, y) -- (x + 1, y)
-         size_t variableIndices[] = {variableIndex(x,0), variableIndex(x + 1,0)};
+   for(int i = 1;i<diff.size();i++) { //We use the new contourns vector generated, error if i =0
+         size_t variableIndices[] = {variableIndex(diff[i].origin,0), variableIndex(diff[i].objective,0)};
          sort(variableIndices, variableIndices + 2);
          gm.addFactor(fid, variableIndices, variableIndices + 2);
-      }
-      
-   }   
+      }  
 
 
 
@@ -347,13 +334,14 @@ main(){
 
    */
    // output the (approximate) argmin
+   
    size_t variableIndex = 0;
    for(size_t y = 0; y < ny; ++y) {
       for(size_t x = 0; x < nx; ++x) {
-         //cout << labeling[variableIndex] << ' ';
+         cout << labeling[variableIndex] << ' ';
          ++variableIndex;
       }   
-     // cout << endl;
+      //cout << endl;
    }
 
 
